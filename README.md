@@ -1,1 +1,1 @@
-# icpswap-calculator
+# ICPSwap Calculator

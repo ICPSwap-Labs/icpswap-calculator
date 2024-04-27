@@ -1,0 +1,9 @@
+{
+  "canisters": {
+    "SwapCalculator": {
+      "main": "./src/SwapCalculator.mo",
+      "type": "motoko"
+    }
+  },
+  "defaults": { "build": { "packtool": "vessel sources" } }, "networks": { "local": { "bind": "127.0.0.1:8000", "type": "ephemeral" } }, "version": 1
+}
