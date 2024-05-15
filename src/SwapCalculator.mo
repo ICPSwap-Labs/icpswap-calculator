@@ -24,7 +24,7 @@ import SqrtPriceMath "mo:icpswap-v3-service/libraries/SqrtPriceMath";
 import TickMath "mo:icpswap-v3-service/libraries/TickMath";
 import LiquidityAmounts "mo:icpswap-v3-service/libraries/LiquidityAmounts";
 
-shared (msg) actor class SwapCalculator() {
+shared (initMsg) actor class SwapCalculator() {
 
     private stable var Q192 = (2 ** 96) ** 2;
     private stable var Q96 : Float = 0x1000000000000000000000000;
@@ -32,11 +32,11 @@ shared (msg) actor class SwapCalculator() {
     private stable var MaxTick : [(Nat, Int)] = [(500, 887270), (3000, 887220), (10000, 887200)];
     private stable var MinTick : [(Nat, Int)] = [(500, -887270), (3000, -887220), (10000, -887200)];
 
-    public shared (msg) func getPrice(sqrtPriceX96 : Int) : async Float {
+    public query func getPrice(sqrtPriceX96 : Int) : async Float {
         Float.fromInt(sqrtPriceX96) ** 2 / 2 ** 192;
     };
 
-    public func priceToTick(price : Float, fee : Nat) : async Int {
+    public query func priceToTick(price : Float, fee : Nat) : async Int {
         var feeTickSpacingMap : HashMap.HashMap<Nat, Int> = HashMap.fromIter<Nat, Int>(FeeTickSpacing.vals(), 3, Nat.equal, Hash.hash);
         var maxTickMap : HashMap.HashMap<Nat, Int> = HashMap.fromIter<Nat, Int>(MaxTick.vals(), 3, Nat.equal, Hash.hash);
         var minTickMap : HashMap.HashMap<Nat, Int> = HashMap.fromIter<Nat, Int>(MaxTick.vals(), 3, Nat.equal, Hash.hash);
@@ -83,7 +83,7 @@ shared (msg) actor class SwapCalculator() {
         };
     };
 
-    public shared func getPositionTokenAmount(
+    public query func getPositionTokenAmount(
         sqrtPriceX96 : Nat,
         tickCurrent : Int,
         tickLower : Int,
@@ -181,7 +181,7 @@ shared (msg) actor class SwapCalculator() {
         return { amount0 = amount0; amount1 = amount1 };
     };
 
-    public shared (msg) func getTokenAmountByLiquidity(
+    public query func getTokenAmountByLiquidity(
         sqrtPriceX96 : Nat,
         tickLower : Int,
         tickUpper : Int,
