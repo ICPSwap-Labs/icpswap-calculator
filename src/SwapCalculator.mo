@@ -3,19 +3,8 @@ import Error "mo:base/Error";
 import Nat "mo:base/Nat";
 import Int "mo:base/Int";
 import Hash "mo:base/Hash";
-import Principal "mo:base/Principal";
-import Cycles "mo:base/ExperimentalCycles";
-import Time "mo:base/Time";
 import Float "mo:base/Float";
-import Blob "mo:base/Blob";
-import Buffer "mo:base/Buffer";
 import HashMap "mo:base/HashMap";
-import Iter "mo:base/Iter";
-import Option "mo:base/Option";
-import Result "mo:base/Result";
-import Array "mo:base/Array";
-import Nat8 "mo:base/Nat8";
-import Nat32 "mo:base/Nat32";
 import IntUtils "mo:commons/math/SafeInt/IntUtils";
 import SafeUint "mo:commons/math/SafeUint";
 import SafeInt "mo:commons/math/SafeInt";
@@ -32,14 +21,19 @@ shared (initMsg) actor class SwapCalculator() {
     private stable var MaxTick : [(Nat, Int)] = [(500, 887270), (3000, 887220), (10000, 887200)];
     private stable var MinTick : [(Nat, Int)] = [(500, -887270), (3000, -887220), (10000, -887200)];
 
-    public query func getPrice(sqrtPriceX96 : Int) : async Float {
-        Float.fromInt(sqrtPriceX96) ** 2 / 2 ** 192;
+    public query func getPrice(sqrtPriceX96 : Nat, decimals0 : Nat, decimals1 : Nat) : async Float {
+        let DECIMALS = 10000000;
+
+        let part1 = sqrtPriceX96 ** 2 * 10 ** decimals0 * DECIMALS;
+        let part2 = Q192 * 10 ** decimals1;
+        let priceWithDecimals = Float.div(Float.fromInt(part1), Float.fromInt(part2));
+        return Float.div(priceWithDecimals, Float.fromInt(DECIMALS));
     };
 
     public query func priceToTick(price : Float, fee : Nat) : async Int {
         var feeTickSpacingMap : HashMap.HashMap<Nat, Int> = HashMap.fromIter<Nat, Int>(FeeTickSpacing.vals(), 3, Nat.equal, Hash.hash);
         var maxTickMap : HashMap.HashMap<Nat, Int> = HashMap.fromIter<Nat, Int>(MaxTick.vals(), 3, Nat.equal, Hash.hash);
-        var minTickMap : HashMap.HashMap<Nat, Int> = HashMap.fromIter<Nat, Int>(MaxTick.vals(), 3, Nat.equal, Hash.hash);
+        var minTickMap : HashMap.HashMap<Nat, Int> = HashMap.fromIter<Nat, Int>(MinTick.vals(), 3, Nat.equal, Hash.hash);
 
         var tickSpacing = switch (feeTickSpacingMap.get(fee)) {
             case (?r) { r };
