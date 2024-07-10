@@ -1,4 +1,3 @@
-import Text "mo:base/Text";
 import Error "mo:base/Error";
 import Nat "mo:base/Nat";
 import Int "mo:base/Int";
@@ -8,7 +7,6 @@ import HashMap "mo:base/HashMap";
 import IntUtils "mo:commons/math/SafeInt/IntUtils";
 import SafeUint "mo:commons/math/SafeUint";
 import SafeInt "mo:commons/math/SafeInt";
-import TextUtils "mo:commons/utils/TextUtils";
 import SqrtPriceMath "mo:icpswap-v3-service/libraries/SqrtPriceMath";
 import TickMath "mo:icpswap-v3-service/libraries/TickMath";
 import LiquidityAmounts "mo:icpswap-v3-service/libraries/LiquidityAmounts";
@@ -82,8 +80,8 @@ shared (initMsg) actor class SwapCalculator() {
         tickCurrent : Int,
         tickLower : Int,
         tickUpper : Int,
-        amount0Desired : Text,
-        amount1Desired : Text,
+        amount0Desired : Nat,
+        amount1Desired : Nat,
     ) : async { amount0 : Int; amount1 : Int } {
         var sqrtRatioAX96 = switch (TickMath.getSqrtRatioAtTick(SafeInt.Int24(tickLower))) {
             case (#ok(r)) { SafeUint.Uint160(r) };
@@ -101,8 +99,8 @@ shared (initMsg) actor class SwapCalculator() {
             SafeUint.Uint160(sqrtPriceX96),
             sqrtRatioAX96,
             sqrtRatioBX96,
-            SafeUint.Uint256(TextUtils.toNat(amount0Desired)),
-            SafeUint.Uint256(TextUtils.toNat(amount1Desired)),
+            SafeUint.Uint256(amount0Desired),
+            SafeUint.Uint256(amount1Desired),
         );
         var amount0 : Int = 0;
         var amount1 : Int = 0;
