@@ -28,6 +28,11 @@ shared (initMsg) actor class SwapCalculator() {
         return Float.div(priceWithDecimals, Float.fromInt(DECIMALS));
     };
 
+    public query func getSqrtPriceX96(price : Float, decimals0 : Float, decimals1 : Float) : async Int {
+        // sqrtPriceX96 = sqrt(price) * 2 ** 96
+        Float.toInt(Float.sqrt(price * (10 ** decimals1) / (10 ** decimals0)) * Q96);
+    };
+
     public query func priceToTick(price : Float, fee : Nat) : async Int {
         var feeTickSpacingMap : HashMap.HashMap<Nat, Int> = HashMap.fromIter<Nat, Int>(FeeTickSpacing.vals(), 3, Nat.equal, Hash.hash);
         var maxTickMap : HashMap.HashMap<Nat, Int> = HashMap.fromIter<Nat, Int>(MaxTick.vals(), 3, Nat.equal, Hash.hash);
@@ -198,5 +203,9 @@ shared (initMsg) actor class SwapCalculator() {
             SafeUint.Uint128(liquidity),
         );
         return { amount0 = result.amount0; amount1 = result.amount1 };
+    };
+
+    public query func sortToken(token0 : Text, token1 : Text) : async (Text, Text) {
+        if (token0 > token1) { (token1, token0) } else { (token0, token1) };
     };
 };
