@@ -1,15 +1,18 @@
 import Error "mo:base/Error";
+import Result "mo:base/Result";
 import Nat "mo:base/Nat";
 import Int "mo:base/Int";
 import Hash "mo:base/Hash";
 import Float "mo:base/Float";
 import HashMap "mo:base/HashMap";
+import Cycles "mo:base/ExperimentalCycles";
 import IntUtils "mo:commons/math/SafeInt/IntUtils";
 import SafeUint "mo:commons/math/SafeUint";
 import SafeInt "mo:commons/math/SafeInt";
 import SqrtPriceMath "mo:icpswap-v3-service/libraries/SqrtPriceMath";
 import TickMath "mo:icpswap-v3-service/libraries/TickMath";
 import LiquidityAmounts "mo:icpswap-v3-service/libraries/LiquidityAmounts";
+import Types "mo:icpswap-v3-service/Types";
 
 shared (initMsg) actor class SwapCalculator() {
 
@@ -207,5 +210,12 @@ shared (initMsg) actor class SwapCalculator() {
 
     public query func sortToken(token0 : Text, token1 : Text) : async (Text, Text) {
         if (token0 > token1) { (token1, token0) } else { (token0, token1) };
+    };
+
+    public shared func getCycleInfo() : async Result.Result<Types.CycleInfo, Types.Error> {
+        return #ok({
+            balance = Cycles.balance();
+            available = Cycles.available();
+        });
     };
 };
