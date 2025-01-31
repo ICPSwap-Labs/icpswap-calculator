@@ -2,9 +2,7 @@ let upstream = https://github.com/dfinity/vessel-package-set/releases/download/m
 let Package =
     { name : Text, version : Text, repo : Text, dependencies : List Text }
 
-let
-  -- This is where you can add your own packages to the package-set
-  additions =
+let additions =
     [
       { name = "base"
       , repo = "https://github.com/dfinity/motoko-base"
@@ -13,15 +11,21 @@ let
       }
       ,{ dependencies = [ "base" ]
       , name = "commons"
-      , repo = "git@github.com:ICPSwap-Labs/ic-commons-v2.git"
+      , repo = "https://github.com/ICPSwap-Labs/ic-commons-v2.git"
       , version = "v0.0.5"
       }    
-      ,{ dependencies = [] : List Text
+      ,{ dependencies = [ "base", "token-adapter" ]
       , name = "icpswap-v3-service"
-      , repo = "git@github.com:ICPSwap-Labs/icpswap-v3-service.git"
+      , repo = "https://github.com/ICPSwap-Labs/icpswap-v3-service.git"
       , version = "v3.4.2"
       }
+      ,{ dependencies = [ "base" ]
+      , name = "token-adapter"
+      , repo = "https://github.com/ICPSwap-Labs/icpswap-token-adapter.git"
+      , version = "v1.0.9"
+      }
     ]
+
 let
   {- This is where you can override existing packages in the package-set
 
