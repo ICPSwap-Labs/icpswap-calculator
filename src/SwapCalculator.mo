@@ -36,7 +36,7 @@ shared (initMsg) actor class SwapCalculator() {
         Float.toInt(Float.sqrt(price * (10 ** decimals1) / (10 ** decimals0)) * Q96);
     };
 
-    public query func priceToTick(price : Float, fee : Nat) : async Int {
+    public query func priceToTick(price : Float, decimals0 : Float, decimals1 : Float, fee : Nat) : async Int {
         var feeTickSpacingMap : HashMap.HashMap<Nat, Int> = HashMap.fromIter<Nat, Int>(FeeTickSpacing.vals(), 3, Nat.equal, Hash.hash);
         var maxTickMap : HashMap.HashMap<Nat, Int> = HashMap.fromIter<Nat, Int>(MaxTick.vals(), 3, Nat.equal, Hash.hash);
         var minTickMap : HashMap.HashMap<Nat, Int> = HashMap.fromIter<Nat, Int>(MinTick.vals(), 3, Nat.equal, Hash.hash);
@@ -54,7 +54,7 @@ shared (initMsg) actor class SwapCalculator() {
             case (_) { 0 };
         };
 
-        var sqrtPriceX96 = IntUtils.toNat(Float.toInt(Float.sqrt(price) * Q96), 256);
+        var sqrtPriceX96 = IntUtils.toNat(Float.toInt(Float.sqrt(price * (10 ** decimals1) / (10 ** decimals0)) * Q96), 256);
         switch (TickMath.getTickAtSqrtRatio(SafeUint.Uint160(sqrtPriceX96))) {
             case (#ok(r)) {
                 var addFlag = if (Int.rem(r, tickSpacing) >= (tickSpacing / 2)) {
@@ -112,24 +112,12 @@ shared (initMsg) actor class SwapCalculator() {
         );
         var amount0 : Int = 0;
         var amount1 : Int = 0;
-        var sqrtRatioAtTickLower = switch (TickMath.getSqrtRatioAtTick(SafeInt.Int24(tickLower))) {
-            case (#ok(r)) { r };
-            case (#err(code)) {
-                throw Error.reject("TickMath.getSqrtRatioAtTick Lower failed: " # debug_show (code));
-            };
-        };
-        var sqrtRatioAtTickUpper = switch (TickMath.getSqrtRatioAtTick(SafeInt.Int24(tickUpper))) {
-            case (#ok(r)) { r };
-            case (#err(code)) {
-                throw Error.reject("TickMath.getSqrtRatioAtTick Upper failed: " # debug_show (code));
-            };
-        };
         if (liquidityDelta != 0) {
             if (tickCurrent < tickLower) {
                 amount0 := switch (
                     SqrtPriceMath.getAmount0Delta(
-                        SafeUint.Uint160(sqrtRatioAtTickLower),
-                        SafeUint.Uint160(sqrtRatioAtTickUpper),
+                        sqrtRatioAX96,
+                        sqrtRatioBX96,
                         SafeInt.Int128(liquidityDelta),
                     )
                 ) {
@@ -142,7 +130,7 @@ shared (initMsg) actor class SwapCalculator() {
                 amount0 := switch (
                     SqrtPriceMath.getAmount0Delta(
                         SafeUint.Uint160(sqrtPriceX96),
-                        SafeUint.Uint160(sqrtRatioAtTickUpper),
+                        sqrtRatioBX96,
                         SafeInt.Int128(liquidityDelta),
                     )
                 ) {
@@ -153,7 +141,7 @@ shared (initMsg) actor class SwapCalculator() {
                 };
                 amount1 := switch (
                     SqrtPriceMath.getAmount1Delta(
-                        SafeUint.Uint160(sqrtRatioAtTickLower),
+                        sqrtRatioAX96,
                         SafeUint.Uint160(sqrtPriceX96),
                         SafeInt.Int128(liquidityDelta),
                     )
@@ -166,8 +154,8 @@ shared (initMsg) actor class SwapCalculator() {
             } else {
                 amount1 := switch (
                     SqrtPriceMath.getAmount1Delta(
-                        SafeUint.Uint160(sqrtRatioAtTickLower),
-                        SafeUint.Uint160(sqrtRatioAtTickUpper),
+                        sqrtRatioAX96,
+                        sqrtRatioBX96,
                         SafeInt.Int128(liquidityDelta),
                     )
                 ) {
