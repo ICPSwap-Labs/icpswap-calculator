@@ -19,9 +19,13 @@ let
       ,{ dependencies = [] : List Text
       , name = "icpswap-v3-service"
       , repo = "git@github.com:ICPSwap-Labs/icpswap-v3-service.git"
-      , version = "v3.4.2"
+      , version = "v3.5.8"
       }
-    ]
+      ,{ dependencies = [] : List Text
+      , name = "token-adapter"
+      , repo = "git@github.com:ICPSwap-Labs/icpswap-token-adapter.git"
+      , version = "v1.0.9"
+      }]
 let
   {- This is where you can override existing packages in the package-set
 

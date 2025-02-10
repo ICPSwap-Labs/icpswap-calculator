@@ -10,6 +10,10 @@ cat <<< $(jq '.canisters={
   SwapCalculator: {
     "main": "./src/SwapCalculator.mo",
     "type": "motoko"
+  },
+  SwapPool: {
+    "main": ".vessel/icpswap-v3-service/v3.5.8/src/SwapPool.mo",
+    "type": "motoko"
   }
 }' dfx.json) > dfx.json
 dfx start --background
