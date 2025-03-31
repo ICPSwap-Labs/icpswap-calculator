@@ -16,6 +16,10 @@ import Types "mo:icpswap-v3-service/Types";
 import Debug "mo:base/Debug";
 import Iter "mo:base/Iter";
 import Text "mo:base/Text";
+import Blob "mo:base/Blob";
+import Principal "mo:base/Principal";
+import Array "mo:base/Array";
+import Nat8 "mo:base/Nat8";
 
 shared (initMsg) actor class SwapCalculator() {
 
@@ -259,6 +263,18 @@ shared (initMsg) actor class SwapCalculator() {
             case (#ok(r)) { #ok(r) };
             case (#err(code)) { #err("TickMath.getSqrtRatioAtTick failed: " # debug_show (code)) };
         };
+    };
+
+    public query func principalToBlob(p: Principal): async Blob {
+        var arr: [Nat8] = Blob.toArray(Principal.toBlob(p));
+        var defaultArr: [var Nat8] = Array.init<Nat8>(32, 0);
+        defaultArr[0] := Nat8.fromNat(arr.size());
+        var ind: Nat = 0;
+        while (ind < arr.size() and ind < 32) {
+            defaultArr[ind + 1] := arr[ind];
+            ind := ind + 1;
+        };
+        return Blob.fromArray(Array.freeze(defaultArr));
     };
 
     private func _getSqrtPriceX96_2(price : Float, decimals0 : Float, decimals1 : Float) : Int {
