@@ -14,12 +14,12 @@ let
       ,{ dependencies = [ "base" ]
       , name = "commons"
       , repo = "git@github.com:ICPSwap-Labs/ic-commons-v2.git"
-      , version = "v0.0.5"
-      }    
+      , version = "v0.0.11"
+      }
       ,{ dependencies = [] : List Text
       , name = "icpswap-v3-service"
       , repo = "git@github.com:ICPSwap-Labs/icpswap-v3-service.git"
-      , version = "v3.5.8"
+      , version = "v3.6.2"
       }
       ,{ dependencies = [] : List Text
       , name = "token-adapter"
